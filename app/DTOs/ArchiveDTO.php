@@ -9,7 +9,6 @@ use WendellAdriel\ValidatedDTO\SimpleDTO;
 
 class ArchiveDTO extends SimpleDTO
 {
-
     public string $id;
     public Carbon $finishAt;
 

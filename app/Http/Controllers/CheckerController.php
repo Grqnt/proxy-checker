@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Contracts\Services\CheckProxyServiceContract;
 use App\Http\Requests\CreateCheckerProxiesRequest;
+use App\Jobs\CheckProxiesJob;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class CheckerController extends Controller
 {
@@ -31,7 +31,9 @@ class CheckerController extends Controller
     {
         $data = $request->validated();
 
-        $archiveId = $checkProxyService->checkProxies($data['proxies']);
+        // TODO: сделать синхронное создание архива в сервисе и только после этого запуск очереди из сервиса
+        CheckProxiesJob::dispatch($data);
+//        $archiveId = $checkProxyService->checkProxies($data['proxies']);
 
         return redirect()->route('archive', ['id' => $archiveId]);
     }

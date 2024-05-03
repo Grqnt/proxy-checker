@@ -11,7 +11,7 @@ class CreateCheckerProxiesRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,16 @@ class CreateCheckerProxiesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //            'proxies' => ['required', 'array'],
+            'proxies' => ['required', 'array'],
+            'proxies.*' => ['required', 'string'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $proxies = array_filter(preg_split('/\r\n|\r|\n/', $this->proxies));
+        $this->merge([
+            'proxies' => $proxies
+        ]);
     }
 }

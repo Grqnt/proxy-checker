@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [CheckerController::class, 'index']);
-Route::post('/', [CheckerController::class, 'start'])->name('start_check_proxies');
+Route::post('/', [CheckerController::class, 'create'])->name('start_check_proxies');
 
 Route::group(['prefix' => '/archive'], function () {
     Route::get('/', [ArchiveController::class, 'index'])->name('archives');
