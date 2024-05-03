@@ -2,9 +2,13 @@
 
 namespace App\Services;
 
+use App\Contracts\Repositories\ProxyRepositoryContract;
 use App\Contracts\Services\CheckProxyServiceContract;
+use App\DTOs\ProxyDTO;
+use App\Repositories\ProxyRepository;
 use Exception;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class CheckProxyService implements CheckProxyServiceContract
 {
@@ -19,10 +23,13 @@ class CheckProxyService implements CheckProxyServiceContract
     //        'check'     => ['get', 'post', 'cookie', 'referer', 'user_agent'],
     //    ];
 
-    public function __construct()
+    public function __construct(
+        ProxyRepositoryContract $proxyRepository
+    )
     {
         $this->checkUrl = config('checker.url');
         $this->timeout = config('checker.timeout');
+        $this->proxyRepository = $proxyRepository;
     }
 
     //    public function setConfig(array $config): void
@@ -31,10 +38,11 @@ class CheckProxyService implements CheckProxyServiceContract
     //    }
 
     /**
-     * Запуск проверки списка прокси
+     * Запуск проверки списка прокси,
      */
     public function checkProxies(array $proxies): array
     {
+//        dd($proxies);
         $results = [];
 
         foreach ($proxies as $proxy) {
@@ -54,47 +62,59 @@ class CheckProxyService implements CheckProxyServiceContract
     /**
      * Получение статуса проверки
      */
-    public function checkerStatus(): array
+    public function checkerStatus(string $archiveId): array
     {
         return [];
     }
 
     /**
+     * Проверка одного прокси
      * @throws Exception
      */
-    public function checkProxy($proxy): array
+    public function checkProxy(string $proxy): bool
     {
         [$content, $info] = $this->getProxyContent($proxy);
 
-        return $this->checkProxyContent($content, $info);
+        try {
+            $this->proxyRepository->create(
+                $this->checkProxyContent($content, $info),
+            );
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return false;
+        }
+
+        return true;
     }
 
     private function getProxyContent(string $proxy): array
     {
+        // TODO: логика парсинга данных из ответа
+
         //        $client = new Http();
         //        Http::response()
         //        $client = new GuzzleHttp\Client();
         //        @list($proxyIp, $proxyType) = explode(',', $proxy);
 
-        //        $url = $this->checkUrl;
-        //        $ch = curl_init($url);
+        $url = $this->checkUrl;
+        $ch = curl_init($url);
 
         // check query
         //        if (in_array('get', $this->config['check'])) {
         //            $url .= '';
         //        }
 
-        $response = Http::withHeaders([
-            CURLOPT_PROXY => $proxy,
-            CURLOPT_HEADER => true,
-            CURLOPT_TIMEOUT => $this->timeout,
-            CURLOPT_CONNECTTIMEOUT => $this->timeout,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_PROXYTYPE => CURLPROXY_HTTP,
-        ])->get($this->checkUrl);
-        Http::dd($response);
-        dd($proxy);
+//        $response = Http::withHeaders([
+//            CURLOPT_PROXY => $proxy,
+//            CURLOPT_HEADER => true,
+//            CURLOPT_TIMEOUT => $this->timeout,
+//            CURLOPT_CONNECTTIMEOUT => $this->timeout,
+//            CURLOPT_RETURNTRANSFER => true,
+//            CURLOPT_FOLLOWLOCATION => true,
+//            CURLOPT_PROXYTYPE => CURLPROXY_HTTP,
+//        ])->get($this->checkUrl);
+//        Http::dd($response);
+//        dd($response);
         $options = [
             CURLOPT_PROXY => $proxy,
             CURLOPT_HEADER => true,
@@ -114,9 +134,17 @@ class CheckProxyService implements CheckProxyServiceContract
         //                $options[CURLOPT_PROXYTYPE] = CURLPROXY_SOCKS5;
         //        }
 
-        //        curl_setopt_array($ch, $options);
+        curl_setopt_array($ch, $options);
         $content = curl_exec($ch);
         $info = curl_getinfo($ch);
+
+//        dd($info['speed_download']);
+
+
+        // $info['speed_download'] - время загрузки
+        // $info['primary_ip'] - реальный ip
+
+        dd($info);
 
         return [$content, $info];
     }
@@ -124,7 +152,7 @@ class CheckProxyService implements CheckProxyServiceContract
     /**
      * @throws Exception
      */
-    private function checkProxyContent($content, $info): array
+    private function checkProxyContent($content, $info): ProxyDTO
     {
         if (! $content) {
             throw new Exception('Empty content');
@@ -158,6 +186,9 @@ class CheckProxyService implements CheckProxyServiceContract
         } elseif (str_contains($content, 'proxylevel_transparent')) {
             $proxyLevel = 'transparent';
         }
+
+
+        return new ProxyDTO();
 
         return [
             'allowed' => $allowed,

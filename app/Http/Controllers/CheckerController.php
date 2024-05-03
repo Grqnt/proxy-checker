@@ -2,21 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Services\CheckProxyServiceContract;
 use App\Http\Requests\CreateCheckerProxiesRequest;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class CheckerController extends Controller
 {
-    public function __construct(
-
-    ) {
-
-    }
-
     /**
      * Display a listing of the resource.
      */
@@ -28,12 +24,16 @@ class CheckerController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(CreateCheckerProxiesRequest $request)
+    public function create(
+        CreateCheckerProxiesRequest $request,
+        CheckProxyServiceContract $checkProxyService,
+    ): RedirectResponse
     {
-        Log::error($request->all());
         $data = $request->validated();
 
-        return redirect();
+        $archiveId = $checkProxyService->checkProxies($data['proxies']);
+
+        return redirect()->route('archive', ['id' => $archiveId]);
     }
 
     /**

@@ -2,13 +2,10 @@
 
 namespace App\DTOs;
 
-namespace App\DTOs;
-
 use WendellAdriel\ValidatedDTO\SimpleDTO;
 
-class ArchiveDTO extends SimpleDTO
+class ProxyDTO extends SimpleDTO
 {
-
     protected function defaults(): array
     {
         return [];

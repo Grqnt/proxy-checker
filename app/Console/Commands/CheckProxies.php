@@ -13,7 +13,9 @@ class CheckProxies extends Command
      *
      * @var string
      */
-    protected $signature = 'app:check-proxies';
+    protected $signature = 'app:check-proxies {--proxy=}';
+
+
 
     /**
      * The console command description.
@@ -29,36 +31,16 @@ class CheckProxies extends Command
         CheckProxyServiceContract $checker
     ): void {
         if ($this->option('verbose')) {
-            Log::info('Start...');
+            Log::info('Start');
         }
 
+
+//        72.10.160.170:2001
+//        45.144.65.8:4444
+//        47.88.3.19:8080
         $this->info($this->description);
+        $result = $checker->checkProxy($this->option('proxy'));
+//        dd($result);
 
-        //        $config = [
-        //            'timeout'   => config('checker.timeout'),
-        //            'check'     => ['get'],
-        //        ];
-
-        /*
-        *	$url [required1]
-        */
-        //        $url = config('checker.url');
-
-        $proxies = [
-            '92.207.253.226:38157',
-            //            'XXX.XXX.XXX.XXX:XXXX,username:password,Socks5',
-            //            'XXX.XXX.XXX.XXX:XXXX'
-        ];
-
-        $result = $checker->checkProxies($proxies);
-
-        $this->info(print_r($result));
-        //        echo "<pre>";
-        //        print_r($result);
-        //        echo "</pre>";
-        //        try {
-        //        } catch (Exception $e) {
-        //            $this->error($e->getMessage());
-        //        }
     }
 }

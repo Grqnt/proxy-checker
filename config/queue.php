@@ -106,4 +106,8 @@ return [
         'table' => 'failed_jobs',
     ],
 
+    'queues' => [
+        'check' => '{check}',
+    ],
+
 ];

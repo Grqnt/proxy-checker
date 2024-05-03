@@ -22,7 +22,6 @@ class CreateCheckerProxiesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //            'proxy' => ['tex']
             //            'proxies' => ['required', 'array'],
         ];
     }
