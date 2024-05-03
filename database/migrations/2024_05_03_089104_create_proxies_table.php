@@ -21,6 +21,11 @@ return new class extends Migration
             $table->string('real_ip')->nullable();
             $table->uuid('archive_id')->nullable();
             $table->timestamps();
+
+            $table->foreign('archive_id')
+                ->references('id')
+                ->on('archives')
+                ->cascadeOnDelete();
         });
     }
 

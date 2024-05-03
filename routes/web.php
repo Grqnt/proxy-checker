@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\CheckerController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,3 +16,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [CheckerController::class, 'index']);
+Route::post('/', [CheckerController::class, 'start'])->name('start_check_proxies');
+
+Route::group(['prefix' => '/archive'], function () {
+    Route::get('/', [ArchiveController::class, 'index'])->name('archives');
+    Route::get('/{id}', [ArchiveController::class, 'get'])->name('archive');
+});

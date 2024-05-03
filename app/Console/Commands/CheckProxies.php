@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Contracts\Services\CheckProxyServiceContract;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -24,17 +25,40 @@ class CheckProxies extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): void {
+    public function handle(
+        CheckProxyServiceContract $checker
+    ): void {
         if ($this->option('verbose')) {
             Log::info('Start...');
         }
 
         $this->info($this->description);
 
-//        try {
-//        } catch (Exception $e) {
-//            $this->error($e->getMessage());
-//        }
-    }
+        //        $config = [
+        //            'timeout'   => config('checker.timeout'),
+        //            'check'     => ['get'],
+        //        ];
 
+        /*
+        *	$url [required1]
+        */
+        //        $url = config('checker.url');
+
+        $proxies = [
+            '92.207.253.226:38157',
+            //            'XXX.XXX.XXX.XXX:XXXX,username:password,Socks5',
+            //            'XXX.XXX.XXX.XXX:XXXX'
+        ];
+
+        $result = $checker->checkProxies($proxies);
+
+        $this->info(print_r($result));
+        //        echo "<pre>";
+        //        print_r($result);
+        //        echo "</pre>";
+        //        try {
+        //        } catch (Exception $e) {
+        //            $this->error($e->getMessage());
+        //        }
+    }
 }
