@@ -138,11 +138,12 @@ class CheckProxyService implements CheckProxyServiceContract
         $content = curl_exec($ch);
         $info = curl_getinfo($ch);
 
+        return new ProxyDTO('');
 //        dd($info['speed_download']);
 
 
         // $info['speed_download'] - время загрузки
-        // $info['primary_ip'] - реальный ip
+        // $info['primary_ip'] - реальный ip?
 
         dd($info);
 
@@ -152,7 +153,7 @@ class CheckProxyService implements CheckProxyServiceContract
     /**
      * @throws Exception
      */
-    private function checkProxyContent($content, $info): ProxyDTO
+    private function checkProxyContent($content, $info): array
     {
         if (! $content) {
             throw new Exception('Empty content');
